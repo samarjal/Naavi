@@ -1,0 +1,99 @@
+// Naavi database schema
+// SQLite for local dev/demo. Swap provider to "postgresql" + set DATABASE_URL
+// when deploying, if you want a hosted DB later.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+
+  profile TravelerProfile?
+  trips   Trip[]
+}
+
+model TravelerProfile {
+  id                String @id @default(cuid())
+  userId            String @unique
+  user              User   @relation(fields: [userId], references: [id])
+
+  travelStyle       String // "relaxed" | "balanced" | "packed"
+  budgetPreference  String // "budget" | "moderate" | "premium"
+  walkingTolerance  String // "low" | "medium" | "high"
+  interests         String // JSON string, e.g. {"architecture":9,"food":8,...}
+}
+
+model Trip {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+
+  destination     String
+  duration        Int      // number of days
+  budget          Int?     // total budget, nullable until known
+  rawRequestText  String   // the original sentence the user typed
+  status          String   @default("pending") // pending | ready | failed
+  createdAt       DateTime @default(now())
+
+  itinerary       Itinerary?
+}
+
+model Place {
+  id          String   @id @default(cuid())
+  destination String   // used as the cache key, e.g. "Jaipur"
+  name        String
+  category    String
+  lat         Float
+  lng         Float
+  avgCost     Int?
+  rating      Float?
+  source      String   // "opentripmap" etc.
+  fetchedAt   DateTime @default(now())
+
+  activities  Activity[]
+
+  @@index([destination])
+}
+
+model Itinerary {
+  id            String   @id @default(cuid())
+  tripId        String   @unique
+  trip          Trip     @relation(fields: [tripId], references: [id])
+
+  narrativeText String?  // filled in by the LLM narration step
+  createdAt     DateTime @default(now())
+
+  days          Day[]
+}
+
+model Day {
+  id          String   @id @default(cuid())
+  itineraryId String
+  itinerary   Itinerary @relation(fields: [itineraryId], references: [id])
+
+  dayNumber   Int
+
+  activities  Activity[]
+}
+
+model Activity {
+  id                String @id @default(cuid())
+  dayId             String
+  day               Day    @relation(fields: [dayId], references: [id])
+  placeId           String
+  place             Place  @relation(fields: [placeId], references: [id])
+
+  order             Int
+  estimatedCost     Int?
+  preferenceScore   Float?
+}

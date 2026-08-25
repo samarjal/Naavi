@@ -1,0 +1,19 @@
+import "./globals.css";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Naavi",
+  description: "Context-aware trip planning, powered by a real recommendation engine.",
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className="bg-slate-50 text-slate-900 antialiased">{children}</body>
+    </html>
+  );
+}
