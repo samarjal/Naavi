@@ -27,7 +27,7 @@ User sentence
     ↓
 LLM extraction (destination, duration, budget)
     ↓
-Google Places (real attractions, ratings, price level, opening hours)
+OPENTRIPMAP (real attractions, ratings, price level, opening hours)
     ↓
 Naavi Engine — 100% deterministic, zero network/LLM calls:
     • scores places against the user's stated interests
@@ -53,7 +53,7 @@ User sees only the narrated result
 - **Conversational trip request** — type a sentence like *"plan a 3 day
   trip to Jaipur, budget 20000"*; the assistant asks a quick follow-up in
   chat if something's missing, then plans automatically
-- **Real places, real data** — Google Places (New) integration: genuine
+- **Real places, real data** — OPENTRIPMAP (New) integration: genuine
   attractions, ratings, price-level signals, and real opening/closing
   hours, cached per destination
 - **A real recommendation engine** — multi-factor scoring
@@ -80,42 +80,7 @@ User sees only the narrated result
 | Database | SQLite via Prisma (swap to Postgres by changing one line for production) |
 | Auth | JWT in an httpOnly cookie (`jose`), password hashing (`bcryptjs`) |
 | LLM | Google Gemini (free tier) — extraction, narration, bounded reranking |
-| Places data | Google Places API (New) — attractions, ratings, price level, opening hours |
-
----
-
-## Architecture
-
-```
-app/
-  trips/new/page.tsx           conversational trip request (chat UI)
-  trips/[id]/page.tsx           narrated result + collapsible engine breakdown
-  api/
-    trips/extract/route.ts        one-shot LLM extraction from free text
-    trips/[id]/generate/route.ts   orchestrates engine + optional Gemini reranking
-    trips/[id]/narrate/route.ts    LLM narration of the finished plan
-    onboarding/route.ts
-    auth/...
-lib/
-  engine.ts          the Naavi Engine — scoring, clustering, routing,
-                      budget/time/hours feasibility. Never calls an LLM
-                      or the network. Independently testable.
-  placesService.ts    the only file that talks to Google Places
-  llmService.ts       the only file that talks to Gemini (extraction,
-                      narration, bounded reranking)
-  profile.ts / auth.ts / session.ts / db.ts
-scripts/
-  test-engine.ts      standalone proof the engine works with zero
-                      network/LLM involvement — npm run test:engine
-prisma/
-  schema.prisma       User, TravelerProfile, Trip, Place, Itinerary, Day, Activity
-```
-
-**The one rule the whole project is built around:** `engine.ts` never
-imports anything LLM-related. Every recommendation, every feasibility
-check, every route ordering decision is plain, deterministic code —
-provable with `npm run test:engine`, which produces the same output every
-time with no network access at all.
+| Places data | OPENTRIPMAP API (New) — attractions, ratings, price level, opening hours |
 
 ---
 
@@ -136,7 +101,7 @@ cp .env.example .env
 Fill in:
 - `JWT_SECRET` — any long random string (`openssl rand -base64 32`)
 - `LLM_API_KEY` — a free Gemini key from [aistudio.google.com/apikey](https://aistudio.google.com/apikey) (no credit card needed)
-- `GOOGLE_PLACES_API_KEY` — from [Google Cloud Console](https://console.cloud.google.com): enable **Places API (New)**, attach a billing account (required by Google to issue the key, but a student project's usage stays within the free tier), then create a restricted API key
+- `OPENTRIPMAP_API_KEY` — a free OPENTRIPMAP api key to fetch places data
 
 ### 3. Set up the database
 
@@ -163,34 +128,3 @@ data with no server, database, or network involved — proof the core
 algorithm works on its own.
 
 ---
-
-## Known limitations
-
-- **Opening hours are a representative daily window, not date-specific.**
-  The app doesn't currently collect the trip's exact calendar start date,
-  so Google's per-weekday hours are approximated by a single "typical day"
-  window rather than mapped to the trip's real dates. Documented in code
-  and shown as an estimate wherever displayed.
-- **Costs are tiered estimates, not live prices.** A real `priceLevel`
-  signal from Google is used when available; otherwise a category-based
-  heuristic tier is shown, always labeled as an estimate.
-- **No true multi-turn conversational agent.** The chat interface handles
-  one-shot extraction plus simple slot-filling follow-ups (missing
-  destination/duration) — not open-ended back-and-forth planning.
-
----
-
-## Roadmap / possible extensions
-
-- Behavioral personalization from repeated trip feedback
-- Dynamic re-planning (e.g. weather-triggered activity swaps)
-- Gamification / progress tracking
-- Multi-provider LLM support (the `llmService.ts` abstraction already
-  isolates this)
-
----
-
-## License
-
-This is an academic project built for a final-year engineering major
-project. Add a license here if you intend to open-source it.
