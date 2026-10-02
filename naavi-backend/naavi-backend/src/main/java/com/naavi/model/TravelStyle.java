@@ -1,0 +1,5 @@
+package com.naavi.model;
+
+public enum TravelStyle {
+    BUDGET, BACKPACKING, RELAXED, ADVENTURE, FAMILY, COUPLE, LUXURY, CULTURAL, NATURE, RELIGIOUS
+}

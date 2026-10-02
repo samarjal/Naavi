@@ -1,0 +1,16 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: naavi-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: naavi
+      MYSQL_USER: naavi
+      MYSQL_PASSWORD: naavi
+    ports:
+      - "3306:3306"
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    volumes:
+      - naavi-mysql-data:/var/lib/mysql
+volumes:
+  naavi-mysql-data:
