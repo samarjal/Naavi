@@ -49,6 +49,14 @@ public class ItineraryValidator {
         if (trip.getDays() != null && trip.getDays() > 1 && !nonEmptyArray(raw.get("accommodation"))) {
             r.errors().add("'accommodation' must list at least one stay.");
         }
+        for (JsonNode t : raw.path("transportation")) {
+            if (t.path("mode").asText("").equalsIgnoreCase("TRAIN") && t.path("trainName").asText("").isBlank()) {
+                r.warnings().add("A train option has no train name.");
+            }
+        }
+        for (JsonNode a : raw.path("accommodation")) {
+            if (a.path("name").asText("").isBlank()) r.warnings().add("A stay has no hotel name.");
+        }
         JsonNode items = raw.get("expenseItems");
         if (!nonEmptyArray(items)) {
             r.errors().add("'expenseItems' must be a non-empty array of {category, description, unitCost, quantity}.");

@@ -271,8 +271,40 @@ public class TravelPlanningService {
             default -> sb.append("I couldn't fetch the weather forecast right now. ");
         }
         sb.append("Prices are estimates unless marked live.");
-        for (String a : assumptions) sb.append(' ').append(a);
+        appendTrains(sb, plan.path("transportation"));
+        appendHotels(sb, plan.path("accommodation"));
+        for (String a : assumptions) sb.append("\n\n").append(a);
         return sb.toString().trim();
+    }
+
+    private void appendTrains(StringBuilder sb, JsonNode transport) {
+        StringBuilder t = new StringBuilder();
+        if (transport.isArray()) {
+            for (JsonNode n : transport) {
+                if (n.path("trainName").asText("").isBlank()) continue;
+                t.append("\n- ").append(n.path("direction").asText("")).append(": ").append(n.path("trainName").asText());
+                if (!n.path("trainNumber").asText("").isBlank()) t.append(" (").append(n.path("trainNumber").asText()).append(")");
+                t.append(", ").append(n.path("from").asText("")).append(" to ").append(n.path("to").asText(""));
+                if (!n.path("travelClass").asText("").isBlank()) t.append(", ").append(n.path("travelClass").asText());
+                t.append(", est. fare ").append(Money.inr(n.path("costPerPerson").decimalValue())).append(" per person");
+                if (n.hasNonNull("bookingUrl")) t.append(" - book: ").append(n.path("bookingUrl").asText());
+            }
+        }
+        if (t.length() > 0) sb.append("\n\nTrains (estimated fares, confirm on IRCTC):").append(t);
+    }
+
+    private void appendHotels(StringBuilder sb, JsonNode stays) {
+        StringBuilder h = new StringBuilder();
+        if (stays.isArray()) {
+            for (JsonNode n : stays) {
+                if (n.path("name").asText("").isBlank()) continue;
+                h.append("\n- ").append(n.path("name").asText());
+                if (!n.path("area").asText("").isBlank()) h.append(", ").append(n.path("area").asText());
+                h.append(" - est. ").append(Money.inr(n.path("pricePerNight").decimalValue())).append("/night");
+                if (n.hasNonNull("bookingUrl")) h.append(" - book: ").append(n.path("bookingUrl").asText());
+            }
+        }
+        if (h.length() > 0) sb.append("\n\nHotels (estimated rates, confirm on the booking page):").append(h);
     }
 
     private ChatResponse respond(Trip trip, ChatConversation conv, String type, String reply, JsonNode itinerary,

@@ -16,6 +16,7 @@ import com.naavi.service.ItineraryValidator;
 import com.naavi.service.PreferenceResolver.EffectivePreferences;
 import com.naavi.service.WeatherService.WeatherDay;
 import com.naavi.service.WeatherService.WeatherResult;
+import com.naavi.service.BookingLinkService;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
@@ -49,6 +50,7 @@ public class ItineraryGenerator {
     private final BudgetEngine budgetEngine;
     private final ItineraryValidator validator;
     private final AppProperties props;
+    private final BookingLinkService bookingLinks;
 
     public record GeneratedPlan(ObjectNode json, Map<PlanType, List<ExpenseLine>> expenseLines, BigDecimal primaryTotal) {}
 
@@ -171,6 +173,8 @@ public class ItineraryGenerator {
         ArrayNode warn = root.putArray("validationWarnings");
         warnings.forEach(warn::add);
 
+        bookingLinks.enrich(root, trip);
+
         return new GeneratedPlan(root, allLines, best.summary().total());
     }
 
@@ -279,8 +283,9 @@ public class ItineraryGenerator {
         {
           "tripSummary": {"title": "", "highlights": [""], "bestTimeNote": ""},
           "transportation": [
-            {"direction": "ONWARD | RETURN", "mode": "", "from": "", "to": "", "durationHours": 0, "costPerPerson": 0,
-             "suitability": "", "notes": "", "recommended": true, "dataType": "ESTIMATED"}
+                        {"direction": "ONWARD | RETURN", "mode": "TRAIN | BUS | FLIGHT | CAB", "from": "", "to": "", "durationHours": 0,
+                         "trainName": "", "trainNumber": "", "travelClass": "", "departureTime": "", "arrivalTime": "",
+                         "costPerPerson": 0, "fareNote": "", "suitability": "", "notes": "", "recommended": true, "dataType": "ESTIMATED"}
           ],
           "accommodation": [
             {"name": "", "area": "", "category": "", "pricePerNight": 0, "nights": 0, "rooms": 0, "rating": 0,
@@ -315,6 +320,14 @@ public class ItineraryGenerator {
           impossible, and then keep the overrun as small as possible and fill "reductionSuggestions" with 3 concrete ways to cut cost.
         - dataType is "ESTIMATED" for anything you are not given in the context. Use "USER_PROVIDED" only for figures the user stated.
           Never use "LIVE" unless the context supplies live data for that item. Do not claim exact or guaranteed prices.
+        TRAINS AND HOTELS (shown to the user for booking):
+                     - When the intercity mode is TRAIN, give a REAL, well-known train that runs on that route: "trainName" (e.g. "Goa Express"),
+                       "trainNumber", "travelClass" (SL, 3A, 2A, CC...), approximate departure/arrival times, and "costPerPerson" = typical fare for
+                       that class. Put the fare band in "fareNote" (e.g. "approx 1,400-1,600 depending on quota"). Offer at least one train per
+                       direction, and a second option if possible. Use TRAIN only if a train is realistic for the route; otherwise use another mode.
+                       If unsure of the exact number, give the name and leave trainNumber empty. Never invent a train.
+                     - Every "accommodation" entry must be a REAL, well-known hotel/stay with its actual name in "name" (no placeholders such as
+                       "Budget Hotel") and its "area". Do NOT output URLs; the backend adds booking links.
 
         PLANNING RULES:
         - "days" must have exactly tripRequest.days entries. Day 1 begins with the onward journey; the last day ends with the return.
@@ -344,7 +357,8 @@ public class ItineraryGenerator {
               "planType": "COMFORT",
               "title": "", "summary": "", "highlights": [""],
               "transportation": [{"direction": "ONWARD | RETURN", "mode": "", "from": "", "to": "", "durationHours": 0,
-                                  "costPerPerson": 0, "notes": "", "dataType": "ESTIMATED"}],
+                                  "trainName": "", "trainNumber": "", "travelClass": "", "costPerPerson": 0, "fareNote": "", "notes": "",
+                                  "dataType": "ESTIMATED"}],
               "accommodation": [{"name": "", "area": "", "category": "", "pricePerNight": 0, "nights": 0, "rooms": 0,
                                  "rating": 0, "amenities": [""], "dataType": "ESTIMATED"}],
               "upgrades": [""],
@@ -361,6 +375,7 @@ public class ItineraryGenerator {
         - Do NOT just scale every cost. Spend the extra money where it changes the experience: better-located or higher-category stay,
           faster/more comfortable transport (e.g. AC class, flight, private cab), better dining, one or two extra experiences, more flexibility
           in the schedule. Say exactly what was upgraded in "upgrades" and "dayChanges".
+        - Name real trains (trainName, trainNumber, travelClass) when mode is TRAIN, and real hotels by their actual names. No URLs.
         - Same money rules as the primary plan: unitCost and quantity per expense item (quantity includes travellers/nights/days),
           INR plain numbers, cover all six categories, items must match the transport/stay described. dataType is ESTIMATED unless the user
           provided the figure. Honour all preferences and tripOverrides in the context (e.g. vegetarian food, preferred local transport).
