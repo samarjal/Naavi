@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Navbar from './components/Navbar';
 import HeroSection from './components/HeroSection';
 import StatsBar from './components/StatsBar';
@@ -9,46 +11,86 @@ import InterestsSection from './components/InterestsSection';
 import UsefulByDesignSection from './components/UsefulByDesignSection';
 import CtaBanner from './components/CtaBanner';
 import Footer from './components/Footer';
-import AiGeneratorModal from './components/AiGeneratorModal';
+
+const BASE_URL = 'http://localhost:8080';
+
+const hasRequiredPreferences = (preferences) => {
+  const requiredFields = [
+    'foodPreference',
+    'localTravelPreference',
+    'accommodationPreference',
+    'travelStyle',
+    'transportationPreference',
+  ];
+
+  return requiredFields.every((field) => Boolean(preferences?.[field]));
+};
 
 export default function App() {
-  const [searchInput, setSearchInput] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const checkPreferences = async () => {
+      const token = localStorage.getItem('naaviToken');
+
+      if (!token || location.pathname !== '/') {
+        return;
+      }
+
+      try {
+        const response = await axios.get(`${BASE_URL}/api/users/me/preferences`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!hasRequiredPreferences(response.data)) {
+          navigate('/preferences', { replace: true });
+        }
+      } catch (error) {
+        if (error.response?.status === 404 || error.response?.status === 400) {
+          navigate('/preferences', { replace: true });
+          return;
+        }
+
+        if (error.response?.status === 401) {
+          localStorage.removeItem('naaviToken');
+          localStorage.removeItem('naaviUser');
+          navigate('/login', { replace: true });
+        }
+      }
+    };
+
+    checkPreferences();
+  }, [location.pathname, navigate]);
+
+  const openChatbot = () => navigate('/chatbot');
 
   return (
     <div className="min-h-screen bg-[#FDFCF9] text-gray-800 font-sans selection:bg-coral-500 selection:text-white">
-      {/* Top Header */}
-      <Navbar onOpenModal={() => setIsModalOpen(true)} />
+      <Navbar onOpenModal={openChatbot} />
 
-      {/* Main Page Content */}
       <main>
         <HeroSection 
-          searchInput={searchInput} 
-          setSearchInput={setSearchInput} 
-          onOpenModal={() => setIsModalOpen(true)} 
+          searchInput="" 
+          setSearchInput={() => {}} 
+          onOpenModal={openChatbot} 
         />
         <StatsBar />
         <DestinationShowcase 
-          searchInput={searchInput} 
-          onOpenModal={() => setIsModalOpen(true)} 
+          searchInput="" 
+          onOpenModal={openChatbot} 
         />
-        
-        <PhilosophySection onOpenModal={() => setIsModalOpen(true)} />
-        <TravelGuidesSection onOpenModal={() => setIsModalOpen(true)} />
+
+        <PhilosophySection onOpenModal={openChatbot} />
+        <TravelGuidesSection onOpenModal={openChatbot} />
         <InterestsSection />
-        <UsefulByDesignSection onOpenModal={() => setIsModalOpen(true)} />
-        <CtaBanner onOpenModal={() => setIsModalOpen(true)} />
+        <UsefulByDesignSection onOpenModal={openChatbot} />
+        <CtaBanner onOpenModal={openChatbot} />
       </main>
 
-      {/* Footer */}
       <Footer />
-
-      {/* Interactive Generator Popup */}
-      <AiGeneratorModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        initialDestination={searchInput} 
-      />
     </div>
   );
 }

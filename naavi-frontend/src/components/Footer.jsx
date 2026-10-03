@@ -13,14 +13,14 @@ export default function Footer() {
               <div className="w-8 h-8 rounded-full bg-emerald-800 flex items-center justify-center text-emerald-300">
                 <Compass className="w-5 h-5" />
               </div>
-              <span className="text-xl font-serif font-bold text-cream-100">ItiMaker</span>
+              <span className="text-xl font-serif font-bold text-cream-100">Naavi</span>
             </div>
             <p className="text-xs text-gray-400 max-w-sm leading-relaxed">
               Practical day-by-day plans, destination intelligence, and room for the discoveries that make a trip yours.
             </p>
             <div className="flex items-center gap-2 text-xs text-gray-300 hover:text-white transition-colors">
               <Mail className="w-4 h-4 text-emerald-400" />
-              <a href="mailto:support@itimaker.com">support@itimaker.com</a>
+              <a href="mailto:support@Naavi.com">support@Naavi.com</a>
             </div>
           </div>
 
@@ -61,7 +61,7 @@ export default function Footer() {
 
         {/* Bottom Social Bar */}
         <div className="pt-8 border-t border-emerald-900/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
-          <p>© 2026 ItiMaker. Made for curious travelers.</p>
+          <p>© 2026 Naavi. Made for curious travelers.</p>
           <div className="flex items-center space-x-3">
             <button className="w-8 h-8 rounded-full bg-emerald-900/60 hover:bg-emerald-800 flex items-center justify-center text-gray-300 hover:text-white transition-colors">
               <Globe className="w-4 h-4" />

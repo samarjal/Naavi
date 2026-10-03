@@ -55,7 +55,7 @@ export default function PhilosophySection({ onOpenModal }) {
 
           {/* Description */}
           <p className="mx-auto mt-6 max-w-[680px] text-[15px] leading-[1.65] text-[#4D6A64] sm:text-[16px]">
-            ItiMaker turns a loose travel idea into a clear route, while
+            Naavi turns a loose travel idea into a clear route, while
             leaving you in control of every
             <br className="hidden sm:block" />
             choice.
