@@ -28,7 +28,7 @@ export default function UsefulByDesignSection({ onOpenModal }) {
             {/* Image */}
             <div className="relative w-full overflow-hidden rounded-[36px]">
               <img
-                src="https://www.Naavi.com/demo-itinerary.jpeg"
+                src="https://www.itimaker.com/demo-itinerary.jpeg"
                 alt="Sample travel itinerary"
                 className="
                   block
