@@ -14,10 +14,13 @@ import com.naavi.model.MessageRole;
 import com.naavi.model.TripStatus;
 import com.naavi.service.PreferenceResolver.EffectivePreferences;
 import com.naavi.service.WeatherService.WeatherResult;
+import com.naavi.tools.ToolExecutor;
 import com.naavi.util.Money;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import com.naavi.ai.PlaceRecommendationService;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +53,7 @@ public class TravelPlanningService {
     private final ItineraryGenerator generator;
     private final ItineraryService itineraryService;
     private final TripQaService qaService;
+    private final PlaceRecommendationService recommender;
 
     /** Trips currently being processed; prevents two concurrent generations for the same trip. */
     private final Set<Long> inFlight = ConcurrentHashMap.newKeySet();
@@ -93,6 +97,13 @@ public class TravelPlanningService {
                     + "travelling and your budget, and I'll plan the trip.";
             return respond(trip, conv, "MESSAGE", reply, null, List.of());
         }
+        if (ex.intent().equals("RECOMMEND")) {
+            override = applyExtraction(trip, override, ex); // remembers source, budget, travellers if mentioned
+            UserPreference savedPrefs = preferenceService.find(userId).orElse(null);
+            EffectivePreferences recPrefs = resolver.resolve(savedPrefs, override);
+            PlaceRecommendationService.Result rec = recommender.recommend(trip, recPrefs, message, ex.placeQuery());
+            return respondWith(trip, conv, "RECOMMENDATION", rec.reply(), null, List.of(), rec.json());
+        }
         if (ex.intent().equals("QUESTION") && latest != null) {
             String answer = qaService.answer(latest, history, message);
             return respond(trip, conv, "MESSAGE", answer, null, List.of());
@@ -118,8 +129,11 @@ public class TravelPlanningService {
         // 4. gather data + build the AI context
         UserPreference saved = preferenceService.find(userId).orElse(null);
         EffectivePreferences prefs = resolver.resolve(saved, override);
-        WeatherResult weather = weatherService.get(trip.getDestination(), trip.getStartDate(), trip.getEndDate());
-        Map<String, Object> external = travelDataProvider.fetch(trip);
+        // weather runs alongside the transport / stay tools; every tool degrades to "not available" instead of failing the plan
+        CompletableFuture<WeatherResult> weatherFuture = CompletableFuture.supplyAsync(
+                () -> weatherService.get(trip.getDestination(), trip.getStartDate(), trip.getEndDate()), ToolExecutor.EXEC);
+        Map<String, Object> external = travelDataProvider.fetch(trip, prefs);
+        WeatherResult weather = weatherFuture.join();
         String instructions = modify
                 ? (ex.modificationInstructions() != null ? ex.modificationInstructions() : message) : null;
         Map<String, Object> context = buildContext(userId, trip, override, prefs, weather, external,
@@ -222,6 +236,7 @@ public class TravelPlanningService {
         ctx.put("travelData", external.get("travelData"));
         ctx.put("hotelData", external.get("hotelData"));
         ctx.put("placeData", external.get("placeData"));
+        ctx.put("budgetGuide", external.get("budgetGuide"));
 
         if (latest != null && instructions != null) {
             ctx.put("previousItinerary", itineraryService.compact(itineraryService.readPlan(latest)));
@@ -309,8 +324,13 @@ public class TravelPlanningService {
 
     private ChatResponse respond(Trip trip, ChatConversation conv, String type, String reply, JsonNode itinerary,
                                  List<String> missing) {
+        return respondWith(trip, conv, type, reply, itinerary, missing, null);
+    }
+
+    private ChatResponse respondWith(Trip trip, ChatConversation conv, String type, String reply, JsonNode itinerary,
+                                     List<String> missing, JsonNode recommendations) {
         chatService.add(conv.getId(), MessageRole.ASSISTANT, reply);
         TripPreferenceOverride ov = tripService.getOverride(trip.getId()).orElse(null);
-        return new ChatResponse(type, reply, Mapper.trip(trip, ov), itinerary, missing);
+        return new ChatResponse(type, reply, Mapper.trip(trip, ov), itinerary, missing, recommendations);
     }
 }

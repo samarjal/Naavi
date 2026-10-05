@@ -329,6 +329,18 @@ public class ItineraryGenerator {
                      - Every "accommodation" entry must be a REAL, well-known hotel/stay with its actual name in "name" (no placeholders such as
                        "Budget Hotel") and its "area". Do NOT output URLs; the backend adds booking links.
 
+        TOOL DATA (backend tools ran before you; use their output instead of inventing numbers):
+        - context.budgetGuide holds suggested caps: transportCapPerPersonRoundTrip and hotelCapPerRoomNight. Prefer options under them.
+        - If context.travelData.options is present, build every "transportation" entry from those options: copy mode, travelClass,
+          durationHours and use costPerPersonOneWay as costPerPerson and as the expense unitCost. Start from the option marked
+          recommended=true unless the user's preferences or modificationInstructions point to another one. For TRAIN you may still add
+          a well-known real trainName/trainNumber for that route, but never change the fare. If travelData.anyOptionFitsBudget is false,
+          say so in "notes" and fill "reductionSuggestions".
+        - If context.hotelData.options is present, every "accommodation" entry must be one of those options: copy name and area, use
+          estimatedPricePerRoomNight as pricePerNight and as the expense unitCost, and set rating to 0 (no rating data exists).
+          Do not invent amenities. Prefer options with fitsNightlyBudget=true and matchesPreference=true.
+        - If a tool's status is NOT_AVAILABLE, fall back to realistic estimates for that part and keep dataType ESTIMATED.
+
         PLANNING RULES:
         - "days" must have exactly tripRequest.days entries. Day 1 begins with the onward journey; the last day ends with the return.
         - Times are 24-hour "HH:mm", ascending within each day. Include meals, check-in/out and rest. Allow realistic travel time and
@@ -376,6 +388,8 @@ public class ItineraryGenerator {
           faster/more comfortable transport (e.g. AC class, flight, private cab), better dining, one or two extra experiences, more flexibility
           in the schedule. Say exactly what was upgraded in "upgrades" and "dayChanges".
         - Name real trains (trainName, trainNumber, travelClass) when mode is TRAIN, and real hotels by their actual names. No URLs.
+        - When context.travelData.options / context.hotelData.options exist, pick transport and stays from them (e.g. a higher train class,
+          a flight or cab from travelData; a higher-tier stay from hotelData) and keep their fares and prices unchanged.
         - Same money rules as the primary plan: unitCost and quantity per expense item (quantity includes travellers/nights/days),
           INR plain numbers, cover all six categories, items must match the transport/stay described. dataType is ESTIMATED unless the user
           provided the figure. Honour all preferences and tripOverrides in the context (e.g. vegetarian food, preferred local transport).

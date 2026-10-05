@@ -1,6 +1,7 @@
 package com.naavi.service;
 
 import com.naavi.entity.Trip;
+import com.naavi.service.PreferenceResolver.EffectivePreferences;
 import java.util.Map;
 
 /**
@@ -10,6 +11,6 @@ import java.util.Map;
  * planner marks every price as ESTIMATED.
  */
 public interface TravelDataProvider {
-    /** Keys: "travelData", "hotelData", "placeData". */
-    Map<String, Object> fetch(Trip trip);
+    /** Keys: "travelData", "hotelData", "placeData", and optionally "budgetGuide". */
+    Map<String, Object> fetch(Trip trip, EffectivePreferences prefs);
 }

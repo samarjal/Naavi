@@ -99,6 +99,7 @@ public final class Dto {
     public record ChatMessageDto(Long id, String role, String content, Instant createdAt) {}
 
     /** type = QUESTION (backend needs more info) | ITINERARY (plan generated/updated) | MESSAGE (plain reply). */
+    /** type = QUESTION (backend needs more info) | ITINERARY (plan generated/updated) | RECOMMENDATION (place ideas) | MESSAGE (plain reply). */
     public record ChatResponse(String type, String reply, TripDto trip, JsonNode itinerary,
-                               List<String> missingFields) {}
+                               List<String> missingFields, JsonNode recommendations) {}
 }

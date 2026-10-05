@@ -82,8 +82,9 @@ public class ItineraryValidator {
             return;
         }
         JsonNode acts = day.path("activities");
-        if (!acts.isArray() || acts.size() < 2) {
-            r.errors().add("Day " + n + " must have at least 2 scheduled activities.");
+        if (!acts.isArray() || acts.size() < 4) {
+            r.errors().add("Day " + n + " must have at least 4 scheduled items (meals, sights, check-in or travel). "
+                    + "Add more activities, meals and an evening plan.");
             return;
         }
         LocalTime prev = null;

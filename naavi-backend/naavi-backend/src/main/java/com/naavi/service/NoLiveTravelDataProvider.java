@@ -1,6 +1,7 @@
 package com.naavi.service;
 
 import com.naavi.entity.Trip;
+import com.naavi.service.PreferenceResolver.EffectivePreferences;
 import java.util.Map;
 import org.springframework.stereotype.Component;
 
@@ -11,7 +12,7 @@ public class NoLiveTravelDataProvider implements TravelDataProvider {
             "note", "No live provider is configured. Use realistic Indian market estimates and label them ESTIMATED.");
 
     @Override
-    public Map<String, Object> fetch(Trip trip) {
+    public Map<String, Object> fetch(Trip trip, EffectivePreferences prefs) {
         return Map.of("travelData", NONE, "hotelData", NONE, "placeData", NONE);
     }
 }

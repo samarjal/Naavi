@@ -104,3 +104,23 @@ Every priced line carries `dataType`: `LIVE` | `ESTIMATED` | `USER_PROVIDED`.
 - Itinerary days/hotels/transport are stored inside the itinerary JSON, not as separate tables (Expense rows are separate). Split them out if you need to query them.
 - Weather forecasts reach ~16 days ahead; later dates fall back to the next 3 days with an explanatory note.
 - LLM output is untrusted: it is parsed leniently, validated, and only ever rendered as data, but add content filtering if the app goes public.
+
+## Travel tools (transport, accommodation, weather)
+
+Before the LLM drafts an itinerary, the backend runs these tools **in parallel** and puts their output in the AI context
+(`TravelPlanningService` -> `LiveTravelDataProvider`). The LLM must pick from the tool output; the backend still does all the
+money arithmetic (`BudgetEngine`).
+
+| Tool | Class | Data source | Data type |
+|---|---|---|---|
+| Budget split | `tools/BudgetSplitter` | pure code (35% transport, 30% stay, 25% food+local, 10% buffer) | guide |
+| Transport | `tools/TransportTool` | geocoding distance + fare model (train SL/CC/3A/2A, bus, flight, cab) | ESTIMATED |
+| Accommodation | `tools/AccommodationTool` | OpenStreetMap Overpass (real names/areas) + category price estimate | names real, prices ESTIMATED |
+| Weather | `service/WeatherService` | Open-Meteo (live) - trip dates, else next 3 days | LIVE |
+
+- Every tool degrades to `{"status":"NOT_AVAILABLE"}` on failure or timeout (15s); the planner then falls back to LLM
+  estimates for that part, so a slow API never fails the whole plan.
+- No API keys needed. Override endpoints with `GEOCODING_URL` / `OVERPASS_URLS` if you self-host.
+- To plug in a real fare/hotel provider later, change the tool internals (or add another `TravelDataProvider`) - the
+  context shape (`{"status", "options":[...]}`) stays the same.
+- Tests: `mvn test` (tools are tested against a local mock HTTP server, no internet needed).

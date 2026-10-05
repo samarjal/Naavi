@@ -24,11 +24,12 @@ public class TripRequestExtractor {
     private final GroqClient groq;
     private final ObjectMapper mapper;
 
-    private static final Set<String> INTENTS = Set.of("PLAN", "MODIFY", "QUESTION", "SMALLTALK");
+    private static final Set<String> INTENTS = Set.of("PLAN", "MODIFY", "QUESTION", "SMALLTALK", "RECOMMEND");
 
     public record Extraction(String intent, String source, String destination, BigDecimal budget, Integer travelers,
                              Integer days, LocalDate startDate, LocalDate endDate, OverridesDto overrides,
-                             String specialRequirements, String modificationInstructions, String reply) {}
+                             String specialRequirements, String modificationInstructions, String reply,
+                             String placeQuery) {}
 
     public Extraction extract(Trip trip, TripPreferenceOverride currentOverride, boolean hasItinerary,
                               List<ChatMessage> history, String message) {
@@ -64,7 +65,7 @@ public class TripRequestExtractor {
             Read the latest user message (with the recent conversation and current trip state) and return ONLY a JSON object:
 
             {
-              "intent": "PLAN | MODIFY | QUESTION | SMALLTALK",
+              "intent": "PLAN | MODIFY | QUESTION | SMALLTALK | RECOMMEND",
               "source": string|null,
               "destination": string|null,
               "budget": number|null,
@@ -82,12 +83,20 @@ public class TripRequestExtractor {
               },
               "specialRequirements": string|null,
               "modificationInstructions": string|null,
-              "reply": string|null
+              "reply": string|null,
+              "placeQuery": string|null
             }
 
             Rules:
             - Only fill a field with something the user said or clearly implied in THIS message. Everything else is null.
               The current trip state is supplied separately; do not repeat it unless the user changes it.
+            - intent RECOMMEND: the user is exploring and has NOT chosen a destination, and wants place ideas (for example
+                              "suggest beaches", "mountain places for May", "where can I go for a weekend under 15k", "best hill stations").
+                              Put what they want in "placeQuery" in plain words (for example "beaches" or "mountains in May under 20000").
+                              Leave destination null. Do NOT use RECOMMEND when the user names one destination or asks for an itinerary or
+                              plan; that is PLAN. If the user picks one of the places suggested earlier ("the first one", "go with Gokarna"),
+                              that is PLAN with destination set to that place. General place-discovery questions when no itinerary exists
+                              yet are RECOMMEND, not QUESTION.
             - intent PLAN: the user gives or changes core trip requirements (source, destination, budget, travellers, days, dates).
               MODIFY: the user asks to change an existing itinerary (cheaper hotel, remove trekking, add more food experiences,
               make it suitable for parents...). If the change affects a core field, also set that field
@@ -134,7 +143,7 @@ public class TripRequestExtractor {
                 positiveMoney(n, "budget"), boundedInt(n, "travelers", 1, 50), boundedInt(n, "days", 1, 30),
                 date(n, "startDate"), date(n, "endDate"), ov.isEmpty() ? null : ov,
                 cap(str(n, "specialRequirements"), 500), cap(str(n, "modificationInstructions"), 1000),
-                cap(str(n, "reply"), 1000));
+                cap(str(n, "reply"), 1000), cap(str(n, "placeQuery"), 300));
     }
 
     // ---- lenient field readers: the LLM output is untrusted input ----
