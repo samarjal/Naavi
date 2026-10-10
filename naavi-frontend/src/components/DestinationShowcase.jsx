@@ -24,7 +24,7 @@ export default function Destinations() {
         {/* Updated CSS Grid layout */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-4 gap-3">
           {destinations.map((d, index) => {
-            // Check if the current item is one of the last two items (Sydney or New York)
+            // Check if the current item is one of the last two items in the showcase
             const isLastTwo = index >= destinations.length - 2;
 
             return (
@@ -32,7 +32,7 @@ export default function Destinations() {
                 key={d.name}
                 href="#"
                 className={`group relative flex items-end overflow-hidden rounded-2xl bg-forest ${
-                  isLastTwo ? 'sm:col-span-2 min-h-[220px]' : d.cls || 'min-h-[220px]'
+                  isLastTwo ? 'sm:col-span-2 min-h-55' : d.cls || 'min-h-55'
                 }`}
               >
                 <img
@@ -41,7 +41,7 @@ export default function Destinations() {
                   loading="lazy"
                   className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent" />
                 <div className="relative p-4 text-white">
                   <p className="text-[8px] font-bold uppercase tracking-widest text-white/80">
                     {d.country}

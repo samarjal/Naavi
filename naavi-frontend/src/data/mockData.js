@@ -1,19 +1,19 @@
 export const DESTINATIONS_DATA = [
-  { id: 1, title: 'Tokyo', desc: 'Japan • 5-7 Days', img: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=800&q=80', size: 'large', category: 'Asia' },
-  { id: 2, title: 'Paris', desc: 'France • 3-5 Days', img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80', size: 'wide', category: 'Europe' },
-  { id: 3, title: 'Rome', desc: 'Italy • 4-6 Days', img: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=600&q=80', size: 'small', category: 'Europe' },
-  { id: 4, title: 'Bangkok', desc: 'Thailand • 3-4 Days', img: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=600&q=80', size: 'small', category: 'Asia' },
-  { id: 5, title: 'Sydney', desc: 'Australia • 5-8 Days', img: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=600&q=80', size: 'small', category: 'Americas' },
-  { id: 6, title: 'New York', desc: 'USA • 4-7 Days', img: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=600&q=80', size: 'small', category: 'Americas' }
+  { id: 1, title: 'Jaipur', desc: 'Rajasthan • 5-7 Days', img: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80', size: 'large', category: 'India' },
+  { id: 2, title: 'Goa', desc: 'Goa • 3-5 Days', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', size: 'wide', category: 'India' },
+  { id: 3, title: 'Munnar', desc: 'Kerala • 4-6 Days', img: 'https://imgs.search.brave.com/nKD_G6sSCe9w5l7BhesugFyrnz4y5wuc0SGeaFlubHs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/cGl4YWJheS5jb20v/cGhvdG8vMjAxOS8w/Mi8wNi8wNS8wNi90/ZWEtcGxhbnRhdGlv/bi0zOTc4NDAzXzY0/MC5qcGc', size: 'small', category: 'India' },
+  { id: 4, title: 'Rishikesh', desc: 'Uttarakhand • 3-4 Days', img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80', size: 'small', category: 'India' },
+  { id: 5, title: 'Ooty', desc: 'Tamil Nadu • 5-8 Days', img: 'https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=600&q=80', size: 'small', category: 'India' },
+  { id: 6, title: 'Hampi', desc: 'Karnataka • 4-7 Days', img: 'https://images.unsplash.com/photo-1500043357865-c6b8827edf5c?auto=format&fit=crop&w=600&q=80', size: 'small', category: 'India' }
 ];
 
 export const TRAVEL_GUIDES = [
-  { tag: 'JAPAN', title: 'A 3-Day Cultural Discovery', desc: 'Experience ancient temples alongside hyper-modern district markets with carefully planned transit intervals.', time: '5 MIN READ' },
-  { tag: 'FRANCE', title: 'Parisian Cafés & Secret Courtyards', desc: 'Slow down and discover hidden gardens, artisan boulangeries, and quiet galleries away from the crowd.', time: '7 MIN READ' },
-  { tag: 'ITALY', title: 'Ancient Architecture Walk', desc: 'Explore the heart of Rome on foot through historic alleyways, ancient ruins, and authentic trattorias.', time: '6 MIN READ' },
-  { tag: 'VIETNAM', title: 'Old Quarter Food & Coffee Crawl', desc: 'Savor egg coffee, street food stalls, and traditional noodle houses with street-by-street guidance.', time: '4 MIN READ' },
-  { tag: 'ICELAND', title: 'Glacier & Thermal Springs Route', desc: 'A driving itinerary mapped for scenic photography, geothermal baths, and optimal rest stops.', time: '8 MIN READ' },
-  { tag: 'SPAIN', title: 'Barcelona Tapas & Design Excursion', desc: 'Walk through Modernist neighborhoods, coastal promenades, and local neighborhood wine bars.', time: '5 MIN READ' }
+  { tag: 'RAJASTHAN', title: 'A 3-Day Cultural Discovery', desc: 'Experience palaces, stepwells and markets with carefully planned transit intervals around Jaipur.', time: '5 MIN READ' },
+  { tag: 'GOA', title: 'Beach Cafés & Sunset Walks', desc: 'Slow down and discover seaside cafés, heritage streets and quiet lanes away from the busiest beaches.', time: '7 MIN READ' },
+  { tag: 'KERALA', title: 'Backwaters & Hill Station Route', desc: 'Explore Kerala through houseboats, tea hills, spice markets and scenic drive stops.', time: '6 MIN READ' },
+  { tag: 'DELHI', title: 'Old & New Delhi Food Crawl', desc: 'Savor chaat, kebabs, coffee and street food with neighborhood-by-neighborhood guidance.', time: '4 MIN READ' },
+  { tag: 'HIMACHAL PRADESH', title: 'Mountain Views & Village Trails', desc: 'A scenic itinerary mapped for photography, quiet villages and carefully timed rest stops.', time: '8 MIN READ' },
+  { tag: 'KARNATAKA', title: 'Heritage & Design Excursion', desc: 'Walk through temple towns, local markets and contemporary café streets with ease.', time: '5 MIN READ' }
 ];
 
 export const INTEREST_CARDS = [

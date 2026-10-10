@@ -16,7 +16,7 @@ export default function HeroSection({
   setSearchInput,
   onOpenModal,
 }) {
-  const destinations = ["Paris", "Tokyo", "Rome", "Bangkok", "New York"];
+  const destinations = ["Jaipur", "Goa", "Kerala", "Rishikesh", "Ooty"];
 
   return (
     <section className="relative min-h-[780px] overflow-hidden bg-[#1B302A] text-white">
@@ -98,7 +98,7 @@ export default function HeroSection({
 
                   <input
                     type="text"
-                    value={searchInput || "Tokyo for 4 days"}
+                    value={searchInput || "Jaipur for 4 days"}
                     onChange={(e) => setSearchInput(e.target.value)}
                     placeholder="Where to next?"
                     className="w-full min-w-0 bg-transparent py-3 text-[15px] text-[#28352F] outline-none placeholder:text-[#8D9692]"
@@ -180,8 +180,8 @@ export default function HeroSection({
 
               <div className="relative h-[245px] overflow-hidden rounded-[22px]">
                 <img
-                  src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=1000&q=90"
-                  alt="Tokyo skyline"
+                  src="https://imgs.search.brave.com/1AD6Zxun9JXlg-E4ghg4eObR136PLe_e9s9vZ_qTY4g/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/Y2FwdHVyZWF0cmlw/LmNvbS9fbmV4dC9p/bWFnZT91cmw9aHR0/cHM6Ly9kMXp2Y21o/eXBlYXd4ai5jbG91/ZGZyb250Lm5ldC9s/b2NhdGlvbi9SYWph/c3RoYW4vYmxvZ3Mv/cGxhY2VzLXRvLXZp/c2l0LWluLWphaXB1/ci01ODA1NDIwNGMz/LWhqaWw1Zy13ZWJw/LTYwNzQwMmZlM2Et/MTc1MjA1OTAyMDcw/Ny53ZWJwJnc9Mzg0/MCZxPTc1"
+                  alt="Jaipur skyline"
                   className="h-full w-full object-cover"
                 />
 
@@ -195,7 +195,7 @@ export default function HeroSection({
                   </p>
 
                   <h3 className="font-serif text-[31px] leading-none">
-                    4 days in Tokyo
+                    4 days in Jaipur
                   </h3>
                 </div>
 
@@ -223,7 +223,7 @@ export default function HeroSection({
                       </span>
 
                       <p className="mt-[2px] text-[15px] font-medium text-[#27342F]">
-                        Tsukiji outer market
+                        Hawa Mahal sunrise
                       </p>
                     </div>
                   </div>
@@ -246,7 +246,7 @@ export default function HeroSection({
                       </span>
 
                       <p className="mt-[2px] text-[15px] font-medium text-[#27342F]">
-                        Meiji Shrine & Yoyogi
+                        City Palace & Jantar Mantar
                       </p>
                     </div>
                   </div>
@@ -269,7 +269,7 @@ export default function HeroSection({
                       </span>
 
                       <p className="mt-[2px] text-[15px] font-medium text-[#27342F]">
-                        Shibuya golden hour
+                        Nahargarh sunset point
                       </p>
                     </div>
                   </div>
