@@ -54,6 +54,7 @@ public class TravelPlanningService {
     private final ItineraryService itineraryService;
     private final TripQaService qaService;
     private final PlaceRecommendationService recommender;
+    private final BudgetFeasibilityChecker feasibility;
 
     /** Trips currently being processed; prevents two concurrent generations for the same trip. */
     private final Set<Long> inFlight = ConcurrentHashMap.newKeySet();
@@ -125,6 +126,13 @@ public class TravelPlanningService {
             tripService.save(trip);
             assumptions.add("You didn't say how long the trip is, so I planned for " + DEFAULT_DAYS + " days.");
         }
+
+        // 3b. refuse impossible budgets up front, with a practical answer instead of an LLM-invented plan
+        BudgetFeasibilityChecker.Verdict verdict = feasibility.check(trip);
+        if (!verdict.feasible()) {
+            return respond(trip, conv, "BUDGET_TOO_LOW", verdict.reply(), null, List.of("budget"));
+        }
+
 
         // 4. gather data + build the AI context
         UserPreference saved = preferenceService.find(userId).orElse(null);
