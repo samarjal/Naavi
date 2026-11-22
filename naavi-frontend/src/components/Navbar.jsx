@@ -83,10 +83,8 @@ export default function Navbar({ onOpenModal }) {
             isScrolled ? 'text-[#2C3A33]' : 'text-gray-300'
           }`}
         >
-          <a href="#plan" className="hover:opacity-80 transition-opacity">Plan a trip</a>
-          <a href="#guides" className="hover:opacity-80 transition-opacity">Travel guides</a>
-          <a href="#destinations" className="hover:opacity-80 transition-opacity">Destinations</a>
-          <a href="#how-it-works" className="hover:opacity-80 transition-opacity">How it works</a>
+          
+          
         </div>
 
         {/* Auth and CTA Buttons */}
