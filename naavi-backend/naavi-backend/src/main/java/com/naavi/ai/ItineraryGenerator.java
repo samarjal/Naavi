@@ -179,7 +179,7 @@ public class ItineraryGenerator {
     }
 
     // ------------------------------------------------------------------ attempt / alternatives
-
+    // added methods to handle hinglish and hindi inputs
     private Attempt attempt(String ctx, String feedback, Trip trip, BigDecimal budget) {
         String user = "TRIP CONTEXT (JSON):\n" + ctx + "\n\nReturn the itinerary JSON now."
                 + (feedback == null ? "" : "\n\nIMPORTANT CORRECTION: " + feedback);
